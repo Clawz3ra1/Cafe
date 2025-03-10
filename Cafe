@@ -13,15 +13,6 @@ local function createESP(player)
         
         billboard.Parent = player.Character
         
-        -- Criando a linha
-        local line = Instance.new("Part")
-        line.Size = Vector3.new(0.1, 0.1, (player.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude)
-        line.Anchored = true
-        line.CanCollide = false
-        line.Color = Color3.fromRGB(0, 255, 0)
-        line.Material = Enum.Material.Neon
-        line.Parent = game.Workspace
-        
         -- Criando o Highlight
         local highlight = Instance.new("Highlight")
         highlight.Parent = player.Character
@@ -30,12 +21,24 @@ local function createESP(player)
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
         
+        -- Criando a linha
+        local line = Instance.new("Part")
+        line.Size = Vector3.new(0.1, 0.1, 0.1)
+        line.Anchored = true
+        line.CanCollide = false
+        line.Color = Color3.fromRGB(255, 0, 0)
+        line.Material = Enum.Material.Neon
+        line.Parent = game.Workspace
+        
         game:GetService("RunService").RenderStepped:Connect(function()
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local startPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
                 local endPos = player.Character.HumanoidRootPart.Position
-                line.Position = (startPos + endPos) / 2
-                line.Size = Vector3.new(0.1, 0.1, (endPos - startPos).magnitude)
+                local direction = (endPos - startPos)
+                local distance = direction.Magnitude
+                
+                line.Size = Vector3.new(0.1, 0.1, distance)
+                line.Position = startPos + direction / 2
                 line.CFrame = CFrame.lookAt(startPos, endPos)
             else
                 line:Destroy()
