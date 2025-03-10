@@ -1,0 +1,32 @@
+local function createESP(player)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local billboard = Instance.new("BillboardGui")
+        billboard.Adornee = player.Character.HumanoidRootPart
+        billboard.Size = UDim2.new(4, 0, 6, 0)
+        billboard.StudsOffset = Vector3.new(0, 2, 0)
+        billboard.AlwaysOnTop = true
+        
+        local frame = Instance.new("Frame", billboard)
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundTransparency = 0.5
+        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        
+        billboard.Parent = player.Character
+    end
+end
+
+local function applyESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            createESP(player)
+        end
+    end
+end
+
+applyESP()
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        task.wait(1) -- Pequeno delay para garantir que o personagem carregue
+        createESP(player)
+    end)
+end)
