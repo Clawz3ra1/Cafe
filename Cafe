@@ -22,6 +22,14 @@ local function createESP(player)
         line.Material = Enum.Material.Neon
         line.Parent = game.Workspace
         
+        -- Criando o Highlight
+        local highlight = Instance.new("Highlight")
+        highlight.Parent = player.Character
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+        highlight.FillTransparency = 0.5
+        highlight.OutlineTransparency = 0
+        
         game:GetService("RunService").RenderStepped:Connect(function()
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local startPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
