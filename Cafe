@@ -58,9 +58,10 @@ local function createESP(player)
                 local direction = (endPos - startPos)
                 local distance = direction.Magnitude
                 
-                line.Size = Vector3.new(0.1, 0.1, distance)
-                line.Position = startPos + direction / 2
-                line.CFrame = CFrame.lookAt(startPos, endPos)
+                -- Atualizando a linha
+                line.Size = Vector3.new(0.1, 0.1, distance) -- Tamanho correto baseado na distância
+                line.Position = startPos + direction / 2 -- Posição no meio do caminho
+                line.CFrame = CFrame.new(startPos, endPos) -- Ajuste do CFrame para garantir que a linha aponte para o jogador alvo
             else
                 line:Destroy()
             end
