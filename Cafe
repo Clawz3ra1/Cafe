@@ -51,6 +51,9 @@ local function createESP(player)
         line.Material = Enum.Material.Neon
         line.Parent = game.Workspace
         
+        -- Criando uma variável para armazenar a linha
+        player:SetAttribute("ESP_Line", line)
+        
         game:GetService("RunService").RenderStepped:Connect(function()
             if espEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local startPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
@@ -63,7 +66,10 @@ local function createESP(player)
                 line.Position = startPos + direction / 2 -- Posição no meio do caminho
                 line.CFrame = CFrame.new(startPos, endPos) -- Ajuste do CFrame para garantir que a linha aponte para o jogador alvo
             else
-                line:Destroy()
+                -- Garantir que a linha seja destruída corretamente
+                if line and line.Parent then
+                    line:Destroy()
+                end
             end
         end)
     end
@@ -78,12 +84,19 @@ local function toggleESP()
             if espEnabled then
                 createESP(player)
             else
+                -- Garantindo que a linha e outros objetos sejam removidos corretamente
                 if player.Character then
+                    -- Remover todos os ESPs relacionados ao jogador
                     for _, v in pairs(player.Character:GetChildren()) do
                         if v:IsA("BillboardGui") or v:IsA("Highlight") or v:IsA("Part") then
                             v:Destroy()
                         end
                     end
+                end
+                -- Remover a linha se existia
+                local line = player:GetAttribute("ESP_Line")
+                if line then
+                    line:Destroy()
                 end
             end
         end
