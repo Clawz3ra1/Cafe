@@ -1,3 +1,4 @@
+-- Criando a UI
 local player = game.Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
 gui.Parent = player:WaitForChild("PlayerGui")
@@ -18,29 +19,6 @@ button.BorderColor3 = Color3.fromRGB(255, 0, 0)
 
 local espEnabled = false
 
-local function toggleESP()
-    espEnabled = not espEnabled
-    button.Text = espEnabled and "Desativar ESP" or "Ativar ESP"
-    
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer then
-            if espEnabled then
-                createESP(player)
-            else
-                if player.Character then
-                    for _, v in pairs(player.Character:GetChildren()) do
-                        if v:IsA("BillboardGui") or v:IsA("Highlight") or v:IsA("Part") then
-                            v:Destroy()
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-button.MouseButton1Click:Connect(toggleESP)
-
 local function createESP(player)
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
         local billboard = Instance.new("BillboardGui")
@@ -56,6 +34,7 @@ local function createESP(player)
         
         billboard.Parent = player.Character
         
+        -- Criando o Highlight
         local highlight = Instance.new("Highlight")
         highlight.Parent = player.Character
         highlight.FillColor = Color3.fromRGB(255, 0, 0)
@@ -63,6 +42,7 @@ local function createESP(player)
         highlight.FillTransparency = 0.5
         highlight.OutlineTransparency = 0
         
+        -- Criando a linha
         local line = Instance.new("Part")
         line.Size = Vector3.new(0.1, 0.1, 0.1)
         line.Anchored = true
@@ -87,3 +67,35 @@ local function createESP(player)
         end)
     end
 end
+
+local function toggleESP()
+    espEnabled = not espEnabled
+    button.Text = espEnabled and "Desativar ESP" or "Ativar ESP"
+    
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            if espEnabled then
+                createESP(player)
+            else
+                if player.Character then
+                    for _, v in pairs(player.Character:GetChildren()) do
+                        if v:IsA("BillboardGui") or v:IsA("Highlight") or v:IsA("Part") then
+                            v:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+button.MouseButton1Click:Connect(toggleESP)
+
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        if espEnabled then
+            task.wait(1) -- Pequeno delay para garantir que o personagem carregue
+            createESP(player)
+        end
+    end)
+end)
