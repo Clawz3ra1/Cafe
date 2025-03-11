@@ -97,6 +97,7 @@ local function toggleESP()
                 local line = player:GetAttribute("ESP_Line")
                 if line then
                     line:Destroy()
+                    player:SetAttribute("ESP_Line", nil) -- Limpa a referência da linha
                 end
             end
         end
