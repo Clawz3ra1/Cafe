@@ -1,101 +1,49 @@
--- Criando a UI
-local player = game.Players.LocalPlayer
-local gui = Instance.new("ScreenGui")
-gui.Parent = player:WaitForChild("PlayerGui")
+-- Script de ESP para jogadores no Roblox
 
-gui.ResetOnSpawn = false
-
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 150, 0, 50)
-button.Position = UDim2.new(0.05, 0, 0.1, 0)
-button.Text = "Ativar ESP"
-button.Parent = gui
-button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.Font = Enum.Font.SourceSansBold
-button.TextSize = 18
-button.BorderSizePixel = 2
-button.BorderColor3 = Color3.fromRGB(255, 0, 0)
-
-local espEnabled = false
-
-local function createESP(player)
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local billboard = Instance.new("BillboardGui")
-        billboard.Adornee = player.Character.HumanoidRootPart
-        billboard.Size = UDim2.new(4, 0, 6, 0)
-        billboard.StudsOffset = Vector3.new(0, 2, 0)
-        billboard.AlwaysOnTop = true
-        
-        local frame = Instance.new("Frame", billboard)
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundTransparency = 0.5
-        frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-        
-        billboard.Parent = player.Character
-        
-        -- Criando o Highlight
-        local highlight = Instance.new("Highlight")
-        highlight.Parent = player.Character
-        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-        highlight.FillTransparency = 0.5
-        highlight.OutlineTransparency = 0
-        
-        -- Criando a linha
-        local line = Instance.new("Part")
-        line.Size = Vector3.new(0.1, 0.1, 0.1)
-        line.Anchored = true
-        line.CanCollide = false
-        line.Color = Color3.fromRGB(255, 0, 0)
-        line.Material = Enum.Material.Neon
-        line.Parent = game.Workspace
-        
-        game:GetService("RunService").RenderStepped:Connect(function()
-            if espEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                local startPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-                local endPos = player.Character.HumanoidRootPart.Position
-                local direction = (endPos - startPos)
-                local distance = direction.Magnitude
-                
-                line.Size = Vector3.new(0.1, 0.1, distance)
-                line.Position = startPos + direction / 2
-                line.CFrame = CFrame.lookAt(startPos, endPos)
-            else
-                line:Destroy()
-            end
-        end)
-    end
-end
-
-local function toggleESP()
-    espEnabled = not espEnabled
-    button.Text = espEnabled and "Desativar ESP" or "Ativar ESP"
+-- Função para criar uma caixa ao redor de um jogador
+local function criarESP(player)
+    -- Criar uma parte que será a caixa
+    local espPart = Instance.new("Part")
+    espPart.Size = Vector3.new(5, 10, 5) -- Tamanho da caixa
+    espPart.Anchored = true
+    espPart.CanCollide = false
+    espPart.Transparency = 0.5
+    espPart.BrickColor = BrickColor.new("Bright red") -- Cor da caixa
+    espPart.Parent = workspace
     
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer then
-            if espEnabled then
-                createESP(player)
-            else
-                if player.Character then
-                    for _, v in pairs(player.Character:GetChildren()) do
-                        if v:IsA("BillboardGui") or v:IsA("Highlight") or v:IsA("Part") then
-                            v:Destroy()
-                        end
-                    end
-                end
-            end
-        end
+    -- Posicionar a caixa sobre o jogador
+    local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if humanoidRootPart then
+        espPart.Position = humanoidRootPart.Position + Vector3.new(0, 5, 0) -- Ajuste de altura
     end
+    
+    -- Atualizar a posição da caixa durante o jogo
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            espPart.Position = player.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
+        else
+            espPart:Destroy() -- Se o jogador morrer ou sair, a caixa é removida
+        end
+    end)
+    
+    -- Opcional: Adicionar o nome do jogador acima da caixa
+    local nomeLabel = Instance.new("BillboardGui")
+    nomeLabel.Adornee = player.Character.HumanoidRootPart
+    nomeLabel.Size = UDim2.new(0, 100, 0, 50)
+    nomeLabel.StudsOffset = Vector3.new(0, 5, 0)
+    nomeLabel.Parent = player.Character.HumanoidRootPart
+
+    local nomeTexto = Instance.new("TextLabel")
+    nomeTexto.Text = player.Name
+    nomeTexto.TextSize = 16
+    nomeTexto.BackgroundTransparency = 1
+    nomeTexto.TextColor3 = Color3.new(1, 1, 1) -- Cor do texto
+    nomeTexto.Parent = nomeLabel
 end
 
-button.MouseButton1Click:Connect(toggleESP)
-
+-- Monitorar todos os jogadores no jogo
 game.Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
-        if espEnabled then
-            task.wait(1) -- Pequeno delay para garantir que o personagem carregue
-            createESP(player)
-        end
+    player.CharacterAdded:Connect(function(character)
+        criarESP(player)
     end)
 end)
